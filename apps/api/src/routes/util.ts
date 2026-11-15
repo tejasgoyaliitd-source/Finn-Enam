@@ -170,11 +170,12 @@ export function utilRoutes(ctx: ApiCtx) {
       input: `Company: ${co.name} (${symbol})\nQuestion: ${body.data.question}\n\nSources:\n${sources.map((s) => `[${s.n}] (${s.label}) ${s.text}`).join("\n")}`,
       schema: Answer,
     });
-    if (data.refused) return ok(c, { refused: true, reason: data.reason }, nowF(ctx));
+    if (data.refused) return ok(c, { refused: true, reason: (data as any).reason }, nowF(ctx));
+    const resData = data as { refused: false; answer: string; citations: number[] };
     // A citation must point at a source we actually gave the model.
-    const cited = [...new Set(data.citations)].map((n) => sources.find((s) => s.n === n));
+    const cited = [...new Set(resData.citations)].map((n) => sources.find((s) => s.n === n));
     if (cited.some((s) => !s)) return ok(c, { refused: true, reason: "The answer cited sources that do not exist, so it was withheld." }, nowF(ctx));
-    return ok(c, { refused: false, answer: data.answer, citations: cited.map((s) => ({ n: s!.n, kind: s!.kind, label: s!.label, url: s!.url, page: s!.page })) }, nowF(ctx));
+    return ok(c, { refused: false, answer: resData.answer, citations: cited.map((s) => ({ n: s!.n, kind: s!.kind, label: s!.label, url: s!.url, page: s!.page })) }, nowF(ctx));
   });
 
   return r;

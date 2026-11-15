@@ -1,0 +1,24 @@
+{
+  "name": "@finn/adapters",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json && tsc -p test/tsconfig.json",
+    "test": "tsx --test test/*.test.ts"
+  },
+  "dependencies": {
+    "@finn/core": "workspace:*",
+    "@finn/shared": "workspace:*",
+    "@supabase/supabase-js": "^2.119.0",
+    "yahoo-finance2": "^4.0.6"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  }
+}

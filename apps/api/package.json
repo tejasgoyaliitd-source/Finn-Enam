@@ -1,0 +1,28 @@
+{
+  "name": "@finn/api",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/dev.ts",
+    "build": "tsup",
+    "typecheck": "tsc -p tsconfig.json",
+    "test:live": "tsx --test test/live.test.ts"
+  },
+  "dependencies": {
+    "@finn/adapters": "workspace:*",
+    "@finn/core": "workspace:*",
+    "@finn/shared": "workspace:*",
+    "@supabase/supabase-js": "^2.119.0",
+    "@vercel/functions": "^3.11.3",
+    "hono": "^4.10.4",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@hono/node-server": "^1.19.5",
+    "@types/node": "^24.9.0",
+    "tsup": "^8.5.0",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
+  }
+}

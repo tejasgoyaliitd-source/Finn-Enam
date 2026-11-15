@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.vercel/
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+.DS_Store
+# never commit source PDFs from ENAM or exchanges
+*.pdf

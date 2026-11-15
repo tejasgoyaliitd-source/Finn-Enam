@@ -1,0 +1,161 @@
+/* Latin (true minus U+2212) and Latin Extended (rupee sign U+20B9) only. */
+@import "@fontsource/ibm-plex-sans/latin-400.css";
+@import "@fontsource/ibm-plex-sans/latin-ext-400.css";
+@import "@fontsource/ibm-plex-sans/latin-500.css";
+@import "@fontsource/ibm-plex-sans/latin-ext-500.css";
+@import "@fontsource/ibm-plex-sans/latin-600.css";
+@import "@fontsource/ibm-plex-sans/latin-ext-600.css";
+@import "@fontsource/ibm-plex-serif/latin-400.css";
+@import "@fontsource/ibm-plex-serif/latin-ext-400.css";
+@import "tailwindcss";
+
+/*
+ * FINN "working papers" tokens. Light only. Tailwind's default palette, fonts and shadows are
+ * reset, so only these exist: no stray purple, no second shadow, no third typeface.
+ */
+@theme {
+  --color-*: initial;
+  --color-paper: #f5f7f6; /* app background */
+  --color-sheet: #ffffff; /* cards, sheets, nav */
+  --color-ledger: #eef3ef; /* quiet fills: table headers, coming up rows, active nav pill */
+  --color-rule: #e2e6e3; /* hairlines */
+  --color-ink: #17212e; /* primary text and numbers, 16.2:1 on white */
+  --color-ink-2: #4b5563; /* secondary text, 7.6:1 */
+  --color-ink-3: #5f6b78; /* captions, timestamps, 5.4:1 */
+  --color-royal: #2b4c9a; /* the one accent: links, active nav, focus */
+  --color-met: #1e7a45;
+  --color-behind-mark: #a87a12; /* glyphs only (≥3:1) */
+  --color-behind-text: #8a6410; /* amber text, 5.4:1 */
+  --color-missed: #b23a2e;
+  /* Pale fills behind status words (pills): the word carries the meaning, the tint repeats it. */
+  --color-met-tint: #e7f3ec;
+  --color-missed-tint: #fbeceb;
+  --color-behind-tint: #fbf3df;
+  --color-white: #ffffff;
+  --color-transparent: transparent;
+  --color-current: currentColor;
+
+  --font-*: initial;
+  --font-sans: "IBM Plex Sans", ui-sans-serif, system-ui, sans-serif;
+  /* Management's own words only. */
+  --font-serif: "IBM Plex Serif", ui-serif, Georgia, serif;
+
+  --text-hero: 28px;
+  --text-hero--line-height: 32px;
+  --text-title: 23px;
+  --text-title--line-height: 28px;
+  --text-section: 16px;
+  --text-section--line-height: 22px;
+  --text-body: 16px;
+  --text-body--line-height: 24px;
+  --text-num: 15px;
+  --text-num--line-height: 20px;
+  --text-caption: 13px;
+  --text-caption--line-height: 18px;
+  --text-nav: 12px;
+  --text-nav--line-height: 16px;
+
+  --radius-*: initial;
+  --radius-btn: 8px; /* buttons, chips, segmented controls */
+  --radius-card: 12px; /* cards that hold a table */
+  --radius-sheet: 16px; /* bottom sheet top corners */
+  --radius-nav: 20px;
+  --radius-pill: 999px;
+
+  --shadow-*: initial;
+  /* The only elevation: floating nav and bottom sheets. */
+  --shadow-float: 0 8px 24px rgb(23 33 46 / 0.08);
+}
+
+@layer base {
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+    background: var(--color-paper);
+    /* clip, not hidden: hidden turns html/body into scroll containers and breaks every sticky bar. */
+    overflow-x: clip;
+    max-width: 100vw;
+  }
+  body {
+    margin: 0;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    line-height: 24px;
+    /* Every number lines up in columns, everywhere. */
+    font-variant-numeric: tabular-nums lining-nums;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow-x: clip;
+    max-width: 100vw;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-royal);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+  button {
+    cursor: pointer;
+  }
+}
+
+/* Management's exact words: the only serif in the app. */
+@utility quote {
+  font-family: var(--font-serif);
+  font-size: 16px;
+  line-height: 26px;
+}
+
+/* Pressed feedback for every control: a 1px settle, no bounce. */
+@utility press {
+  transition: transform 80ms ease-out, background-color 120ms ease-out, color 120ms ease-out;
+  &:active {
+    transform: translateY(1px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* Sheets slide in over 150 ms; tab switches are instant. Reduced motion turns this off above. */
+@keyframes sheet-in {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+.sheet-in {
+  animation: sheet-in 150ms ease-out;
+}
+
+/* The record strip deals its glyphs in, one after another, once. */
+@keyframes strip-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.strip-in > span {
+  animation: strip-in 220ms ease-out both;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+@media (prefers-reduced-motion: reduce) {
+  .strip-in > span {
+    animation: none;
+  }
+}

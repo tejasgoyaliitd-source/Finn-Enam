@@ -1,0 +1,26 @@
+{
+  "name": "@finn/core",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json && tsc -p test/tsconfig.json",
+    "test": "tsx --test test/*.test.ts test/record/*.test.ts test/governance/*.test.ts test/llm/*.test.ts",
+    "test:failover": "tsx test/llm/failover.test.ts"
+  },
+  "dependencies": {
+    "@finn/shared": "workspace:*",
+    "cheerio": "^1.2.0",
+    "fast-xml-parser": "^5.12.1",
+    "unpdf": "^2.1.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "@types/node": "^24.19.2",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  }
+}

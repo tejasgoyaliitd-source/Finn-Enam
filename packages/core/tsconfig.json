@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  // No DOM lib and no @types/node: `fetch`, `http`, `process` and `fs` do not even
+  // type-check in here. All I/O comes in through the ports in src/ports.ts, which the
+  // API and the refresher CLI implement. That is what lets the same code run in both.
+  "compilerOptions": {
+    "lib": ["ES2023"],
+    "types": []
+  },
+  "include": ["src"]
+}

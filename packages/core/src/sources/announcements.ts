@@ -120,7 +120,7 @@ async function collect(
   for (const r of raw) {
     const n = await normalize(r);
     if (n.ok) rows.push(n.filing);
-    else t.skipped.push({ symbol, reason: n.reason });
+    else t.skipped.push({ symbol, reason: (n as any).reason });
   }
 }
 

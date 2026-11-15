@@ -308,14 +308,15 @@ export class ModelRouter implements LlmClient {
     }
 
     // Single repair retry
+    const err1 = !parsed1.ok ? parsed1.error : "";
     this.deps.log.warn("llm router: output validation failed, attempting repair retry", {
       task: req.task,
-      error: parsed1.error,
+      error: err1,
     });
 
     const repairPrompt = [
       "Your previous output was invalid according to the required schema.",
-      `Validation error: ${parsed1.error}`,
+      `Validation error: ${err1}`,
       "Here is your previous output:",
       res1.text,
       "Please return ONLY a corrected, strictly valid JSON object matching the required schema.",
@@ -330,7 +331,8 @@ export class ModelRouter implements LlmClient {
       return { data: parsed2.data, tokensIn, tokensOut };
     }
 
-    throw Object.assign(new Error(`Output failed schema validation after repair retry: ${parsed2.error}`), { tokensIn, tokensOut });
+    const err2 = !parsed2.ok ? parsed2.error : "";
+    throw Object.assign(new Error(`Output failed schema validation after repair retry: ${err2}`), { tokensIn, tokensOut });
   }
 
   /**

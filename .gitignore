@@ -8,3 +8,8 @@ dist/
 .DS_Store
 # never commit source PDFs from ENAM or exchanges
 *.pdf
+
+# AI chat history and databases (contain API keys and logs)
+AI Chat History/
+*.db
+*.jsonl

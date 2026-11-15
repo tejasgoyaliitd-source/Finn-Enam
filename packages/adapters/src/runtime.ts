@@ -87,14 +87,15 @@ async function fetchRequest(req: HttpRequest): Promise<HttpResponse> {
       signal: AbortSignal.timeout(req.timeoutMs ?? 20_000),
     });
     const headers: Record<string, string> = {};
-    res.headers.forEach((v, k) => (headers[k.toLowerCase()] = v));
+    const r = res as any;
+    if (r.headers?.forEach) r.headers.forEach((v: string, k: string) => (headers[k.toLowerCase()] = v));
     return {
-      status: res.status,
-      url: res.url,
+      status: r.status,
+      url: r.url,
       headers,
-      setCookies: res.headers.getSetCookie(),
-      text: () => res.text(),
-      bytes: async () => new Uint8Array(await res.arrayBuffer()),
+      setCookies: r.headers?.getSetCookie ? r.headers.getSetCookie() : [],
+      text: () => r.text(),
+      bytes: async () => new Uint8Array(await r.arrayBuffer()),
     };
   }
 }

@@ -52,7 +52,7 @@ export async function processTranscript(
   const symbol = job.company.symbol;
   return runIngest<TranscriptReport>(deps, "guidance", async () => {
     const doc = await extractDocument(deps, { symbol, type: "transcript", period: job.call_period, url: job.url });
-    if (!doc.ok) throw new Error(`transcript download failed: ${doc.error}`);
+    if (!doc.ok) throw new Error(`transcript download failed: ${(doc as any).error}`);
     const sha = doc.result.sha256;
     const pages = await deps.store.getDocumentText(sha);
     if (!pages) throw new Error("transcript has no readable text (scan?)");

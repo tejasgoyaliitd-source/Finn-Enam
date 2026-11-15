@@ -44,7 +44,7 @@ export const ApiFailure = z.strictObject({
 export type ApiFailure = z.infer<typeof ApiFailure>;
 
 export const apiSuccess = <T extends z.ZodType>(data: T) =>
-  z.strictObject({ ok: z.literal(true), data, ...freshness }).refine(staleNeedsReason, staleMsg);
+  z.strictObject({ ok: z.literal(true), data, ...freshness }).refine(staleNeedsReason as any, staleMsg);
 
 export const apiResponse = <T extends z.ZodType>(data: T) =>
   z.discriminatedUnion("ok", [apiSuccess(data), ApiFailure]);

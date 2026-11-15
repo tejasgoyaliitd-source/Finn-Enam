@@ -85,7 +85,7 @@ export async function extractDocument(deps: CoreDeps, input: DocumentInput): Pro
     const pages = text.ok ? text.pages.length : null;
     let note: string | null = null;
     if (!text.ok) {
-      note = `${input.symbol} ${input.type}: could not parse PDF (${text.error})`;
+      note = `${input.symbol} ${input.type}: could not parse PDF (${(text as any).error})`;
     } else if (!text.readable) {
       note = `${input.symbol} ${input.type} ${input.period ?? ""}: looks like a scan (no text layer); marked unreadable`.replace(/\s+:/, ":");
     }

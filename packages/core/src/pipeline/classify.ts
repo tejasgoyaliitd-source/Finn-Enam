@@ -67,7 +67,7 @@ export async function classify(
         input: `Company: ${f.symbol}\nExchange category: ${f.exch_category}\nSubject: ${f.subject}`,
         schema: ClassifyOutput,
       });
-      return { ...data, method: "model", model, note };
+      return { ...data, sub_kind: data.sub_kind ?? null, method: "model", model, note };
     } catch (err) {
       log.warn("classify: model failed, using fallback", { symbol: f.symbol, error: String(err) });
     }

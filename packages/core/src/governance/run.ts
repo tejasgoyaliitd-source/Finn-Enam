@@ -55,7 +55,7 @@ export async function checkAnnualReportMandate(
 ): Promise<RunOutcome<MandateCheckResult>> {
   return runIngest<MandateCheckResult>(deps, "documents", async () => {
     const doc = await extractDocument(deps, { symbol: job.symbol, type: "annual_report", period: job.period, url: job.url });
-    if (!doc.ok) throw new Error(`annual report download failed: ${doc.error}`);
+    if (!doc.ok) throw new Error(`annual report download failed: ${(doc as any).error}`);
     const pages = await deps.store.getDocumentText(doc.result.sha256);
     if (!pages) throw new Error("annual report has no readable text");
     const idx = pages.map((t, i) => (SEGMENT_PAGE.test(t) && (t.match(/\d[\d,]*\.\d{2}/g)?.length ?? 0) >= 6 ? i : -1)).filter((i) => i >= 0).slice(0, 6);
@@ -145,7 +145,7 @@ export async function extractPeopleChange(
     const seen = new Set<string>();
     const events: PeopleEventRow[] = kept
       .filter((p) => { const k = `${p.name.toLowerCase()}|${p.action}`; return seen.has(k) ? false : (seen.add(k), true); })
-      .map((p) => ({ ...p, filing_id: job.filing_id, symbol: job.symbol }));
+      .map((p) => ({ ...p, filing_id: job.filing_id, symbol: job.symbol, effective_date: p.effective_date ?? null }));
     if (events.length && deps.store.upsertPeopleEvents) await deps.store.upsertPeopleEvents(events);
 
     const asOf = deps.clock.now();

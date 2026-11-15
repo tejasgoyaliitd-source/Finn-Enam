@@ -38,7 +38,7 @@ export const cdn =
   (sMaxAge = 60, swr = 600): MiddlewareHandler =>
   async (c, next) => {
     await next();
-    if (c.res.status === 200) c.header("Cache-Control", `public, s-maxage=${sMaxAge}, stale-while-revalidate=${swr}`);
+    if (c.res && (c.res as any).status === 200) c.header("Cache-Control", `public, s-maxage=${sMaxAge}, stale-while-revalidate=${swr}`);
   };
 
 export const noStore: MiddlewareHandler = async (c, next) => {

@@ -11,5 +11,6 @@ dist/
 
 # AI chat history and databases (contain API keys and logs)
 AI Chat History/
+ai-history/
 *.db
 *.jsonl

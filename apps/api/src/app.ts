@@ -18,20 +18,24 @@ export function createApp(ctx: ApiCtx) {
   const app = new Hono();
 
   app.use(
-    "/v1/*",
+    "*",
     cors({
       origin: (origin) =>
+        !origin ||
         ctx.env.webOrigins.length === 0 ||
         ctx.env.webOrigins.includes("*") ||
         ctx.env.webOrigins.includes(origin) ||
         (!ctx.env.production && LOCAL.test(origin))
-          ? origin
+          ? (origin || "*")
           : null,
       allowMethods: ["GET", "POST", "PUT", "OPTIONS"],
-      allowHeaders: ["content-type"],
+      allowHeaders: ["content-type", "authorization", "accept"],
       maxAge: 86400,
     }),
   );
+
+  app.get("/", (c) => c.json({ ok: true, name: "FINN API", status: "online", time: new Date().toISOString() }));
+  app.get("/ping", (c) => c.text("pong"));
 
   const v1 = new Hono();
   v1.route("/", readRoutes(ctx));
@@ -49,8 +53,9 @@ export function createApp(ctx: ApiCtx) {
   app.notFound((c) => fail(c, new ApiError(404, "not_found", "No such endpoint.")));
   app.onError((err, c) => {
     if (err instanceof ApiError) return fail(c, err);
-    ctx.deps.log.error("unhandled", { path: c.req.path, error: String(err).slice(0, 500) });
-    return fail(c, new ApiError(500, "internal", "Something went wrong on our side. It has been logged."));
+    const detail = err?.message || String(err);
+    ctx.deps.log.error("unhandled", { path: c.req.path, error: detail.slice(0, 500) });
+    return fail(c, new ApiError(500, "internal", `Backend error: ${detail}`));
   });
   return app;
 }

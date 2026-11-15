@@ -161,15 +161,29 @@ export function readRoutes(ctx: ApiCtx) {
   const r = new Hono();
 
   // ─── Health: never cached ─────────────────────────────────────────────────
+  r.get("/health/live", noStore, (c) => c.json({ ok: true, status: "live", time: new Date().toISOString() }));
+  r.get("/ping", noStore, (c) => c.text("pong"));
+
   r.get("/health", noStore, async (c) => {
-    const sources = await sourceStatus(ctx);
-    const now = ctx.deps.clock.now();
-    const f = freshness(sources, ["yahoo", "filings", "screener"], now);
-    const filingsOk = sources.some((s) => (s.source === "nse" || s.source === "bse") && !s.degraded);
-    return ok(c, {
-      status: sources.every((s) => !s.degraded) ? "ok" : filingsOk && !sources.find((s) => s.source === "yahoo")!.degraded ? "degraded" : "down",
-      sources,
-    }, { ...f, as_of: toIst(now) });
+    try {
+      const sources = await sourceStatus(ctx);
+      const now = ctx.deps.clock.now();
+      const f = freshness(sources, ["yahoo", "filings", "screener"], now);
+      const filingsOk = sources.some((s) => (s.source === "nse" || s.source === "bse") && !s.degraded);
+      const yahoo = sources.find((s) => s.source === "yahoo");
+      const yahooOk = yahoo ? !yahoo.degraded : false;
+      return ok(c, {
+        status: sources.every((s) => !s.degraded) ? "ok" : filingsOk && yahooOk ? "degraded" : "down",
+        sources,
+      }, { ...f, as_of: toIst(now) });
+    } catch (err: any) {
+      const now = ctx.deps.clock.now();
+      return ok(c, {
+        status: "down",
+        error: err?.message || String(err),
+        sources: [],
+      }, { as_of: toIst(now), stale: true, stale_reason: err?.message || "Health check failed" });
+    }
   });
 
   // ─── Brief ─────────────────────────────────────────────────────────────────

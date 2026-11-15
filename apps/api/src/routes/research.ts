@@ -105,7 +105,7 @@ async function runStep(ctx: ApiCtx, job: Job, s: Step): Promise<Pick<Step, "stat
     case "annual_report": {
       const a = s.args as { fy: string; url: string };
       const d = await extractDocument(deps, { symbol: job.symbol, type: "annual_report", period: a.fy, url: a.url });
-      if (!d.ok) throw new Error(d.error);
+      if (!d.ok) throw new Error((d as any).error);
       const pages = d.result.pages ?? (await deps.store.getDocumentText(d.result.sha256))?.length ?? null;
       if (d.result.readable === false) return { state: "done", note: `${a.fy} annual report is a scan; text not readable` };
       return { state: "done", note: `Found ${a.fy} annual report${pages ? ` (${pages} pages)` : ""}` };
@@ -114,13 +114,13 @@ async function runStep(ctx: ApiCtx, job: Job, s: Step): Promise<Pick<Step, "stat
       if (!deps.llm) return { state: "skipped", note: "Needs a model key to read the segment note" };
       const a = s.args as { fy: string; url: string };
       const r = await checkAnnualReportMandate(deps, { symbol: job.symbol, url: a.url, period: a.fy });
-      if (!r.ok) throw new Error(r.error);
+      if (!r.ok) throw new Error((r as any).error);
       return { state: "done", note: r.result.line, args: { ...a, result: { clean: r.result.clean, line: r.result.line } } };
     }
     case "read": {
       const t = s.args as { call_period: string; url: string };
       const d = await extractDocument(deps, { symbol: job.symbol, type: "transcript", period: t.call_period, url: t.url });
-      if (!d.ok) throw new Error(d.error);
+      if (!d.ok) throw new Error((d as any).error);
       const pages = d.result.pages ?? (await deps.store.getDocumentText(d.result.sha256))?.length ?? null;
       return { state: "done", note: `Read ${periodLabel(t.call_period)} call${pages ? ` (${pages} pages)` : ""}` };
     }
@@ -128,7 +128,7 @@ async function runStep(ctx: ApiCtx, job: Job, s: Step): Promise<Pick<Step, "stat
       if (!deps.llm) return { state: "skipped", note: "Needs a model key to extract guidance" };
       const t = s.args as { call_period: string; url: string };
       const r = await processTranscript(deps, { company: ref, url: t.url, call_period: t.call_period });
-      if (!r.ok) throw new Error(r.error);
+      if (!r.ok) throw new Error((r as any).error);
       const d = r.result.dropped.length;
       return { state: "done", note: `${r.result.kept} target${r.result.kept === 1 ? "" : "s"} from the ${periodLabel(t.call_period)} call${d ? `; ${d} quote${d === 1 ? "" : "s"} failed verification and were dropped` : ""}` };
     }

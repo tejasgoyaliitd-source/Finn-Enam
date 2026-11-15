@@ -148,7 +148,7 @@ export async function ingestFilings(deps: CoreDeps, rows: FilingRow[]): Promise<
   }
 
   const out: AnalysisRow[] = analysed.map(({ subject: _s, symbol: _y, filed_at: _f, ...a }) =>
-    FilingAnalysis.parse({ ...a, event_id: eventOf.get(a.filing_id) ?? null }),
+    FilingAnalysis.parse({ ...a, sub_kind: a.sub_kind ?? null, event_id: eventOf.get(a.filing_id) ?? null }) as AnalysisRow,
   );
   await deps.store.upsertAnalyses(out);
   return report;

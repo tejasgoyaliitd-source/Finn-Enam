@@ -61,7 +61,8 @@ export function cronRoutes(ctx: ApiCtx) {
   r.post("/cron/daily", async (c) => {
     const rep = await refresh(ctx.deps, { target: { portfolio: ctx.env.portfolioId }, parts: ["prices"], since: new Date(Date.now() - DAY) });
     const alerts = await generateAlerts(ctx);
-    return ok(c, { prices: rep.prices?.ok ? { status: rep.prices.status, rows: rep.prices.rows } : { status: "failed", error: rep.prices && !rep.prices.ok ? rep.prices.error : null }, alerts }, nowF(), 202);
+    const p = rep.prices;
+    return ok(c, { prices: p?.ok ? { status: p.status, rows: p.rows } : { status: "failed", error: p && !p.ok ? (p as any).error : null }, alerts }, nowF(), 202);
   });
 
   /** Filing poll (external pinger every 20–30 min): last 2 days through the triage pipeline. */
@@ -69,8 +70,8 @@ export function cronRoutes(ctx: ApiCtx) {
     const rep = await refresh(ctx.deps, { target: { portfolio: ctx.env.portfolioId }, parts: ["filings"], since: new Date(Date.now() - 2 * DAY) });
     const f = rep.filings;
     return ok(c, {
-      nse: f?.nse ? (f.nse.ok ? { status: f.nse.status, rows: f.nse.rows } : { status: "failed", error: f.nse.error }) : null,
-      bse: f?.bse ? (f.bse.ok ? { status: f.bse.status, rows: f.bse.rows } : { status: "failed", error: f.bse.error }) : null,
+      nse: f?.nse ? (f.nse.ok ? { status: f.nse.status, rows: f.nse.rows } : { status: "failed", error: (f.nse as any).error }) : null,
+      bse: f?.bse ? (f.bse.ok ? { status: f.bse.status, rows: f.bse.rows } : { status: "failed", error: (f.bse as any).error }) : null,
       missed: f?.missed ?? [],
       results_pending: rep.results_pending ?? [],
     }, nowF(), 202);

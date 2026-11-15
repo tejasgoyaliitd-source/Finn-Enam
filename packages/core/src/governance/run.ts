@@ -145,7 +145,15 @@ export async function extractPeopleChange(
     const seen = new Set<string>();
     const events: PeopleEventRow[] = kept
       .filter((p) => { const k = `${p.name.toLowerCase()}|${p.action}`; return seen.has(k) ? false : (seen.add(k), true); })
-      .map((p) => ({ ...p, filing_id: job.filing_id, symbol: job.symbol, effective_date: p.effective_date ?? null }));
+      .map((p) => ({
+        ...p,
+        filing_id: job.filing_id,
+        symbol: job.symbol,
+        effective_date: p.effective_date ?? null,
+        tenure_months: p.tenure_months ?? null,
+        stated_reason: p.stated_reason ?? null,
+        source_page: p.source_page ?? null,
+      }));
     if (events.length && deps.store.upsertPeopleEvents) await deps.store.upsertPeopleEvents(events);
 
     const asOf = deps.clock.now();

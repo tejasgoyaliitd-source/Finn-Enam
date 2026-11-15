@@ -8,6 +8,7 @@
  *   openai/gpt-oss-20b (Groq): in: ₹6.25, out: ₹20.00
  *   qwen/qwen3.8-27b (Groq): in: ₹8.50, out: ₹25.00
  *   openai/gpt-oss-120b (Groq): in: ₹15.00, out: ₹50.00
+ *   haiku-5.5 / claude-3-5-haiku: in: ₹68.00, out: ₹340.00
  *   claude-3-5-sonnet: in: ₹250.00, out: ₹1250.00
  */
 
@@ -28,6 +29,10 @@ export const MODEL_PRICING: Record<string, ModelPricing> = {
   // Groq high reasoning failover for tier 2 & 3
   "openai/gpt-oss-120b": { inrPerMillionInput: 15.0, inrPerMillionOutput: 50.0 },
   "gpt-oss-120b": { inrPerMillionInput: 15.0, inrPerMillionOutput: 50.0 },
+  // Claude / Anthropic tier 2 failover: Claude 3.5 Haiku ($0.80 / $4.00 per 1M tokens @ USD 1 = INR 85)
+  "haiku-5.5": { inrPerMillionInput: 68.0, inrPerMillionOutput: 340.0 },
+  "claude-3-5-haiku-20241022": { inrPerMillionInput: 68.0, inrPerMillionOutput: 340.0 },
+  "claude-3-5-haiku": { inrPerMillionInput: 68.0, inrPerMillionOutput: 340.0 },
   "claude-3-5-sonnet": { inrPerMillionInput: 250.0, inrPerMillionOutput: 1250.0 },
 };
 

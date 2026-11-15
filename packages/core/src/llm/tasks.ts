@@ -7,6 +7,7 @@ export interface TaskTierConfig {
   tierName: "code" | "cheap" | "mid" | "strong";
   defaultModel: string;
   failoverModel?: string;
+  claudeModel?: string;
   provider: "gemini" | "groq" | "anthropic";
 }
 
@@ -17,6 +18,7 @@ export const DEFAULT_MODELS = {
   cheapFailover: "openai/gpt-oss-20b",
   midFailover: "openai/gpt-oss-120b",
   strongFailover: "openai/gpt-oss-120b",
+  claudeFailover: "haiku-5.5",
 } as const;
 
 export const TASK_CONFIG: Record<LlmTask, TaskTierConfig> = {
@@ -26,6 +28,7 @@ export const TASK_CONFIG: Record<LlmTask, TaskTierConfig> = {
     tierName: "cheap",
     defaultModel: DEFAULT_MODELS.cheap,
     failoverModel: DEFAULT_MODELS.cheapFailover,
+    claudeModel: DEFAULT_MODELS.claudeFailover,
     provider: "gemini",
   },
   rewrite_headline: {
@@ -33,6 +36,7 @@ export const TASK_CONFIG: Record<LlmTask, TaskTierConfig> = {
     tierName: "cheap",
     defaultModel: DEFAULT_MODELS.cheap,
     failoverModel: DEFAULT_MODELS.cheapFailover,
+    claudeModel: DEFAULT_MODELS.claudeFailover,
     provider: "gemini",
   },
   read_meeting_date: {
@@ -40,6 +44,7 @@ export const TASK_CONFIG: Record<LlmTask, TaskTierConfig> = {
     tierName: "cheap",
     defaultModel: DEFAULT_MODELS.cheap,
     failoverModel: DEFAULT_MODELS.cheapFailover,
+    claudeModel: DEFAULT_MODELS.claudeFailover,
     provider: "gemini",
   },
   tag_segments: {
@@ -47,6 +52,7 @@ export const TASK_CONFIG: Record<LlmTask, TaskTierConfig> = {
     tierName: "cheap",
     defaultModel: DEFAULT_MODELS.cheap,
     failoverModel: DEFAULT_MODELS.cheapFailover,
+    claudeModel: DEFAULT_MODELS.claudeFailover,
     provider: "gemini",
   },
 
@@ -56,6 +62,7 @@ export const TASK_CONFIG: Record<LlmTask, TaskTierConfig> = {
     tierName: "mid",
     defaultModel: DEFAULT_MODELS.mid,
     failoverModel: DEFAULT_MODELS.midFailover,
+    claudeModel: DEFAULT_MODELS.claudeFailover,
     provider: "gemini",
   },
   extract_people: {
@@ -63,6 +70,7 @@ export const TASK_CONFIG: Record<LlmTask, TaskTierConfig> = {
     tierName: "mid",
     defaultModel: DEFAULT_MODELS.mid,
     failoverModel: DEFAULT_MODELS.midFailover,
+    claudeModel: DEFAULT_MODELS.claudeFailover,
     provider: "gemini",
   },
   extract_guidance: {
@@ -70,6 +78,7 @@ export const TASK_CONFIG: Record<LlmTask, TaskTierConfig> = {
     tierName: "mid",
     defaultModel: DEFAULT_MODELS.mid,
     failoverModel: DEFAULT_MODELS.midFailover,
+    claudeModel: DEFAULT_MODELS.claudeFailover,
     provider: "gemini",
   },
   answer_scoped: {
@@ -77,6 +86,7 @@ export const TASK_CONFIG: Record<LlmTask, TaskTierConfig> = {
     tierName: "mid",
     defaultModel: DEFAULT_MODELS.mid,
     failoverModel: DEFAULT_MODELS.midFailover,
+    claudeModel: DEFAULT_MODELS.claudeFailover,
     provider: "gemini",
   },
 
@@ -86,6 +96,7 @@ export const TASK_CONFIG: Record<LlmTask, TaskTierConfig> = {
     tierName: "strong",
     defaultModel: DEFAULT_MODELS.strong,
     failoverModel: DEFAULT_MODELS.strongFailover,
+    claudeModel: DEFAULT_MODELS.claudeFailover,
     provider: "gemini",
   },
   write_questions: {
@@ -93,6 +104,7 @@ export const TASK_CONFIG: Record<LlmTask, TaskTierConfig> = {
     tierName: "strong",
     defaultModel: DEFAULT_MODELS.strong,
     failoverModel: DEFAULT_MODELS.strongFailover,
+    claudeModel: DEFAULT_MODELS.claudeFailover,
     provider: "gemini",
   },
 };

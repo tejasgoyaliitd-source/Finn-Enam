@@ -7,12 +7,14 @@ export interface RouterEnv {
   geminiApiKey?: string;
   groqApiKey?: string;
   anthropicApiKey?: string;
+  claudeApiKey?: string;
   modelCheap?: string;
   modelMid?: string;
   modelStrong?: string;
   modelCheapFailover?: string;
   modelMidFailover?: string;
   modelStrongFailover?: string;
+  modelClaudeFailover?: string;
 }
 
 export interface ProviderCall {
@@ -75,10 +77,15 @@ export class ModelRouter implements LlmClient {
   constructor(private readonly deps: ModelRouterDeps) {}
 
   /**
-   * Resolves the primary and failover model for a given task and tier.
+   * Resolves the primary, Groq failover, and Claude failover models for a given task and tier.
    * Explicitly ignores moderation filters (llama-prompt-guard, gpt-oss-safeguard).
    */
-  resolveModels(task: LlmTask, tier: "cheap" | "mid" | "strong"): { primaryModel: string; failoverModel?: string; provider: "gemini" | "groq" | "anthropic" } {
+  resolveModels(task: LlmTask, tier: "cheap" | "mid" | "strong"): {
+    primaryModel: string;
+    failoverModel?: string;
+    claudeModel?: string;
+    provider: "gemini" | "groq" | "anthropic";
+  } {
     const config = TASK_CONFIG[task];
     const env = this.deps.env ?? {};
 
@@ -102,9 +109,13 @@ export class ModelRouter implements LlmClient {
       failoverModel = tier === "cheap" ? DEFAULT_MODELS.cheapFailover : DEFAULT_MODELS.midFailover;
     }
 
+    let claudeModel = config?.claudeModel ?? DEFAULT_MODELS.claudeFailover;
+    if (env.modelClaudeFailover) claudeModel = env.modelClaudeFailover;
+
     return {
       primaryModel,
       failoverModel,
+      claudeModel,
       provider: providerFor(primaryModel),
     };
   }
@@ -127,7 +138,7 @@ export class ModelRouter implements LlmClient {
    *   6. Logs token usage, serving provider, serving model, latency, and list price in INR to llm_calls
    */
   async run<T>(req: LlmRequest<T>): Promise<{ data: T; model: string; cached?: boolean }> {
-    const { primaryModel, failoverModel, provider } = this.resolveModels(req.task, req.tier);
+    const { primaryModel, failoverModel, claudeModel, provider } = this.resolveModels(req.task, req.tier);
     const cacheKey = await this.computeCacheKey(req.task, req.promptVersion, primaryModel, req.input);
 
     // 1. Check Cache
@@ -160,7 +171,7 @@ export class ModelRouter implements LlmClient {
       }
     }
 
-    // 2. Dispatch Call with Failover & Retry
+    // 2. Dispatch Call with 3-tier Failover (Gemini -> Groq -> Claude) & Retry
     const start = this.deps.clock.now().getTime();
     let lastError: Error | null = null;
     let selectedModel = primaryModel;
@@ -169,11 +180,14 @@ export class ModelRouter implements LlmClient {
     let spentOut = 0;
     let spentInr = 0;
 
-    // Try primary, then failover
-    const attempts = [
+    // Try primary (Gemini), then Groq failover, then Claude failover (haiku-5.5)
+    const attempts: Array<{ model: string; provider: "gemini" | "groq" | "anthropic" }> = [
       { model: primaryModel, provider },
       ...(failoverModel && failoverModel !== primaryModel
         ? [{ model: failoverModel, provider: providerFor(failoverModel) }]
+        : []),
+      ...(claudeModel && claudeModel !== primaryModel && claudeModel !== failoverModel
+        ? [{ model: claudeModel, provider: providerFor(claudeModel) }]
         : []),
     ];
 
@@ -197,7 +211,7 @@ export class ModelRouter implements LlmClient {
           }));
         }
 
-        // Log call metrics: records which provider actually served the request (gemini or groq),
+        // Log call metrics: records which provider actually served the request (gemini, groq, or anthropic),
         // the exact model used, latency in ms, tokens, and inr cost
         if (this.deps.store?.logLlmCall) {
           await this.safe("call log", () => this.deps.store!.logLlmCall!({
@@ -227,9 +241,11 @@ export class ModelRouter implements LlmClient {
           const nextAttempt = attempts[i + 1]!;
           const isTransient = isTransientOrRateLimit(lastError);
           this.deps.log.warn(
-            `llm router: primary provider ${attempt.provider} (${attempt.model}) failed (${lastError.message}), failing over immediately to ${nextAttempt.provider} (${nextAttempt.model})`,
+            `llm router: ${i === 0 ? "primary " : ""}provider ${attempt.provider} (${attempt.model}) failed (${lastError.message}), failing over immediately to ${nextAttempt.provider} (${nextAttempt.model})`,
             {
               task: req.task,
+              failedModel: attempt.model,
+              failedProvider: attempt.provider,
               primaryModel: attempt.model,
               primaryProvider: attempt.provider,
               failoverModel: nextAttempt.model,
@@ -415,17 +431,19 @@ export class ModelRouter implements LlmClient {
   }
 
   private async callAnthropicApi(model: string, system: string, prompt: string): Promise<ProviderResponse> {
-    const apiKey = this.deps.env?.anthropicApiKey;
+    const apiKey = (this.deps.env?.claudeApiKey || this.deps.env?.anthropicApiKey)?.trim();
     if (!apiKey) {
-      const err: any = new Error("ANTHROPIC_API_KEY is not configured");
+      const err: any = new Error("CLAUDE_API_KEY / ANTHROPIC_API_KEY is not configured");
       err.status = 401;
       throw err;
     }
+    // Map haiku-5.5 shorthand to Anthropic's official API model identifier
+    const apiModel = model === "haiku-5.5" ? "claude-3-5-haiku-20241022" : model;
     const res = await this.deps.http.request({
       url: "https://api.anthropic.com/v1/messages",
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": apiKey, "anthropic-version": "2023-06-01" },
-      body: JSON.stringify({ model, max_tokens: 8192, system, messages: [{ role: "user", content: prompt }] }),
+      body: JSON.stringify({ model: apiModel, max_tokens: 8192, system, messages: [{ role: "user", content: prompt }] }),
       timeoutMs: 60_000,
     });
     if (res.status < 200 || res.status >= 300) {
@@ -485,9 +503,9 @@ export class ModelRouter implements LlmClient {
   }
 }
 
-/** Provider follows the model name: claude-* → Anthropic, gemini-* → Google, anything else → Groq. */
+/** Provider follows the model name: claude-* / haiku-* → Anthropic, gemini-* → Google, anything else → Groq. */
 export function providerFor(model: string): "gemini" | "groq" | "anthropic" {
-  if (/^claude/i.test(model)) return "anthropic";
+  if (/^(claude|haiku)/i.test(model)) return "anthropic";
   if (/^gemini/i.test(model)) return "gemini";
   return "groq";
 }

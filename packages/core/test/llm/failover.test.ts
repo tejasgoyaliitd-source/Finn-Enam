@@ -156,3 +156,141 @@ test("429 rate limit simulation: fails over from Gemini to Groq (openai/gpt-oss-
   assert.ok(callLog.cost_inr > 0, "INR cost must be calculated");
   assert.ok(totalElapsed < 200, "Failover must execute in under 200ms");
 });
+
+test("3-tier failover: Gemini 429 -> Groq 429 -> Claude (haiku-5.5) succeeds", async () => {
+  const store = new MemoryStore();
+  const sha256 = async (d: Uint8Array | string) => createHash("sha256").update(d).digest("hex");
+  const clock = { now: () => new Date(), sleep: async (_ms: number) => {} };
+  const logs: string[] = [];
+  const logger = {
+    info: (m: string) => logs.push(`[INFO] ${m}`),
+    warn: (m: string, ctx?: any) => {
+      logs.push(`[WARN] ${m} ${JSON.stringify(ctx ?? {})}`);
+    },
+    error: (m: string) => logs.push(`[ERROR] ${m}`),
+  };
+
+  const requestsMade: { url: string; model?: string; provider?: string }[] = [];
+
+  // Mock HTTP client: Gemini fails (429), Groq fails (429), Claude succeeds (200)
+  const mockHttp: HttpClient = {
+    async request(req: HttpRequest): Promise<HttpResponse> {
+      if (req.url.includes("generativelanguage.googleapis.com")) {
+        requestsMade.push({ url: req.url, provider: "gemini" });
+        return {
+          status: 429,
+          url: req.url,
+          headers: { "content-type": "application/json" },
+          setCookies: [],
+          text: async () => JSON.stringify({ error: { code: 429, message: "Resource exhausted" } }),
+          bytes: async () => new Uint8Array(),
+        };
+      }
+
+      if (req.url.includes("api.groq.com")) {
+        const body = JSON.parse(req.body ?? "{}");
+        requestsMade.push({ url: req.url, model: body.model, provider: "groq" });
+        return {
+          status: 429,
+          url: req.url,
+          headers: { "content-type": "application/json" },
+          setCookies: [],
+          text: async () => JSON.stringify({ error: { message: "Rate limit reached on Groq" } }),
+          bytes: async () => new Uint8Array(),
+        };
+      }
+
+      if (req.url.includes("api.anthropic.com")) {
+        const body = JSON.parse(req.body ?? "{}");
+        requestsMade.push({ url: req.url, model: body.model, provider: "anthropic" });
+
+        const mockClaudeResponse = {
+          id: "msg_test_haiku_failover",
+          type: "message",
+          role: "assistant",
+          model: body.model,
+          content: [
+            {
+              type: "text",
+              text: JSON.stringify({
+                headline: "Polycab Q2 Financial Results Approved via Claude Haiku",
+                category: "results",
+                confidence: 0.99,
+                actionRequired: true,
+              }),
+            },
+          ],
+          usage: {
+            input_tokens: 125,
+            output_tokens: 42,
+          },
+        };
+
+        return {
+          status: 200,
+          url: req.url,
+          headers: { "content-type": "application/json" },
+          setCookies: [],
+          text: async () => JSON.stringify(mockClaudeResponse),
+          bytes: async () => new TextEncoder().encode(JSON.stringify(mockClaudeResponse)),
+        };
+      }
+
+      throw new Error(`Unexpected request to ${req.url}`);
+    },
+  };
+
+  const router = new ModelRouter({
+    http: mockHttp,
+    clock,
+    hash: { sha256 },
+    log: logger,
+    store,
+    env: {
+      geminiApiKey: "mock-gemini-key",
+      groqApiKey: "mock-groq-key",
+      claudeApiKey: "mock-claude-key",
+    },
+  });
+
+  const request: LlmRequest<Classification> = {
+    task: "classify_filing",
+    tier: "cheap",
+    promptVersion: "v1",
+    system: "Classify the exchange announcement.",
+    input: "POLYCAB INDIA LIMITED - Q2 Financial Results",
+    schema: ClassificationSchema,
+  };
+
+  const startTime = Date.now();
+  const result = await router.run(request);
+  const totalElapsed = Date.now() - startTime;
+
+  // Assertions: 3 attempts executed in order
+  assert.equal(requestsMade.length, 3, "Must make 3 requests: Gemini -> Groq -> Claude");
+  assert.equal(requestsMade[0]?.provider, "gemini");
+  assert.equal(requestsMade[1]?.provider, "groq");
+  assert.equal(requestsMade[2]?.provider, "anthropic");
+  assert.equal(requestsMade[2]?.model, "claude-3-5-haiku-20241022", "haiku-5.5 maps to canonical Anthropic API model");
+
+  // Output correctness
+  assert.equal(result.model, "haiku-5.5");
+  assert.equal(result.data.headline, "Polycab Q2 Financial Results Approved via Claude Haiku");
+  assert.equal(result.data.category, "results");
+  assert.equal(result.data.actionRequired, true);
+
+  // Failover warning logs
+  assert.ok(logs.some((l) => l.includes("provider gemini") && l.includes("failing over immediately to groq")));
+  assert.ok(logs.some((l) => l.includes("provider groq") && l.includes("failing over immediately to anthropic")));
+
+  // Verify call logged in llm_calls
+  assert.equal(store.llmCalls.length, 1);
+  const callLog = store.llmCalls[0]!;
+  assert.equal(callLog.ok, true);
+  assert.equal(callLog.provider, "anthropic");
+  assert.equal(callLog.model, "haiku-5.5");
+  assert.equal(callLog.tokens_in, 125);
+  assert.equal(callLog.tokens_out, 42);
+  assert.ok(callLog.cost_inr > 0, "INR cost calculated for haiku-5.5");
+  assert.ok(totalElapsed < 200, "Failover chain must execute in under 200ms");
+});

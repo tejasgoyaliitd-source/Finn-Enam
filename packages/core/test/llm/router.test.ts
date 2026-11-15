@@ -45,6 +45,7 @@ test("LLM Router: maps tasks to correct default tiers and providers", () => {
   assert.equal(TASK_CONFIG.tag_segments.tier, 1);
   assert.equal(TASK_CONFIG.classify_filing.defaultModel, "gemini-3.1-flash-lite");
   assert.equal(TASK_CONFIG.classify_filing.failoverModel, "openai/gpt-oss-20b");
+  assert.equal(TASK_CONFIG.classify_filing.claudeModel, "haiku-5.5");
 
   // Tier 2 (mid)
   assert.equal(TASK_CONFIG.extract_results.tier, 2);
@@ -53,12 +54,14 @@ test("LLM Router: maps tasks to correct default tiers and providers", () => {
   assert.equal(TASK_CONFIG.answer_scoped.tier, 2);
   assert.equal(TASK_CONFIG.extract_results.defaultModel, "gemini-3.5-flash");
   assert.equal(TASK_CONFIG.extract_results.failoverModel, "openai/gpt-oss-120b");
+  assert.equal(TASK_CONFIG.extract_results.claudeModel, "haiku-5.5");
 
   // Tier 3 (strong)
   assert.equal(TASK_CONFIG.write_risks.tier, 3);
   assert.equal(TASK_CONFIG.write_questions.tier, 3);
   assert.equal(TASK_CONFIG.write_risks.defaultModel, "gemini-2.5-pro");
   assert.equal(TASK_CONFIG.write_risks.failoverModel, "openai/gpt-oss-120b");
+  assert.equal(TASK_CONFIG.write_risks.claudeModel, "haiku-5.5");
 });
 
 test("LLM Router: explicitly ignores moderation models (llama-prompt-guard, gpt-oss-safeguard)", () => {

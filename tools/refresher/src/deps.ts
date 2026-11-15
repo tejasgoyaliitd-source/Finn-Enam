@@ -45,22 +45,24 @@ export function buildDeps(opts: { dryRun: boolean; quiet?: boolean }): CoreDeps 
   }
   const base = { http: fetchHttpClient(), clock: systemClock(), hash: nodeHasher(), log: consoleLogger({ quiet: opts.quiet }) };
   const e = process.env;
+  const claudeKey = e.CLAUDE_API_KEY || (e as any).claude_api_key || e.ANTHROPIC_API_KEY;
   // The model router is on as soon as any provider key is set; without one, model steps fall back or fail closed.
   const llm =
-    e.GEMINI_API_KEY || e.GROQ_API_KEY || e.ANTHROPIC_API_KEY
+    e.GEMINI_API_KEY || e.GROQ_API_KEY || claudeKey
       ? new ModelRouter({
           ...base,
           store,
           env: {
-            ...(e.GEMINI_API_KEY ? { geminiApiKey: e.GEMINI_API_KEY } : {}),
-            ...(e.GROQ_API_KEY ? { groqApiKey: e.GROQ_API_KEY } : {}),
-            ...(e.ANTHROPIC_API_KEY ? { anthropicApiKey: e.ANTHROPIC_API_KEY } : {}),
-            ...(e.MODEL_CHEAP ? { modelCheap: e.MODEL_CHEAP } : {}),
-            ...(e.MODEL_MID ? { modelMid: e.MODEL_MID } : {}),
-            ...(e.MODEL_STRONG ? { modelStrong: e.MODEL_STRONG } : {}),
-            ...(e.MODEL_CHEAP_FAILOVER ? { modelCheapFailover: e.MODEL_CHEAP_FAILOVER } : {}),
-            ...(e.MODEL_MID_FAILOVER ? { modelMidFailover: e.MODEL_MID_FAILOVER } : {}),
-            ...(e.MODEL_STRONG_FAILOVER ? { modelStrongFailover: e.MODEL_STRONG_FAILOVER } : {}),
+            ...(e.GEMINI_API_KEY ? { geminiApiKey: e.GEMINI_API_KEY.trim() } : {}),
+            ...(e.GROQ_API_KEY ? { groqApiKey: e.GROQ_API_KEY.trim() } : {}),
+            ...(claudeKey ? { anthropicApiKey: claudeKey.trim(), claudeApiKey: claudeKey.trim() } : {}),
+            ...(e.MODEL_CHEAP ? { modelCheap: e.MODEL_CHEAP.trim() } : {}),
+            ...(e.MODEL_MID ? { modelMid: e.MODEL_MID.trim() } : {}),
+            ...(e.MODEL_STRONG ? { modelStrong: e.MODEL_STRONG.trim() } : {}),
+            ...(e.MODEL_CHEAP_FAILOVER ? { modelCheapFailover: e.MODEL_CHEAP_FAILOVER.trim() } : {}),
+            ...(e.MODEL_MID_FAILOVER ? { modelMidFailover: e.MODEL_MID_FAILOVER.trim() } : {}),
+            ...(e.MODEL_STRONG_FAILOVER ? { modelStrongFailover: e.MODEL_STRONG_FAILOVER.trim() } : {}),
+            ...(e.MODEL_CLAUDE_FAILOVER ? { modelClaudeFailover: e.MODEL_CLAUDE_FAILOVER.trim() } : {}),
           },
         })
       : undefined;

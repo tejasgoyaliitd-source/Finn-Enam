@@ -20,7 +20,13 @@ export function createApp(ctx: ApiCtx) {
   app.use(
     "/v1/*",
     cors({
-      origin: (origin) => (ctx.env.webOrigins.includes(origin) || (!ctx.env.production && LOCAL.test(origin)) ? origin : null),
+      origin: (origin) =>
+        ctx.env.webOrigins.length === 0 ||
+        ctx.env.webOrigins.includes("*") ||
+        ctx.env.webOrigins.includes(origin) ||
+        (!ctx.env.production && LOCAL.test(origin))
+          ? origin
+          : null,
       allowMethods: ["GET", "POST", "PUT", "OPTIONS"],
       allowHeaders: ["content-type"],
       maxAge: 86400,
@@ -37,6 +43,8 @@ export function createApp(ctx: ApiCtx) {
   v1.route("/", utilRoutes(ctx));
   v1.route("/", cronRoutes(ctx));
   app.route("/v1", v1);
+  app.route("/api/v1", v1);
+  app.route("/api", v1);
 
   app.notFound((c) => fail(c, new ApiError(404, "not_found", "No such endpoint.")));
   app.onError((err, c) => {

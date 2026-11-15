@@ -74,6 +74,7 @@ test("router: failed attempts still log the tokens and rupees they used", async 
 
 test("router: provider follows the model name, so MODEL_STRONG=claude-… goes to Anthropic", () => {
   assert.equal(providerFor("claude-sonnet-5-5"), "anthropic");
+  assert.equal(providerFor("haiku-5.5"), "anthropic");
   assert.equal(providerFor("gemini-2.5-pro"), "gemini");
   assert.equal(providerFor("openai/gpt-oss-120b"), "groq");
 });

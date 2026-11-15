@@ -57,8 +57,10 @@ export function cronRoutes(ctx: ApiCtx) {
   r.use("/cron/*", noStore, requireCron(ctx));
   const nowF = () => ({ as_of: toIst(ctx.deps.clock.now()), stale: false, stale_reason: null });
 
+  // Vercel Cron calls with GET (and sends "Authorization: Bearer $CRON_SECRET" itself);
+  // an external pinger may POST. Both reach the same handlers.
   /** Daily close: prices for every holding, then alerts. Also keeps the Supabase project awake. */
-  r.post("/cron/daily", async (c) => {
+  r.on(["GET", "POST"], "/cron/daily", async (c) => {
     const rep = await refresh(ctx.deps, { target: { portfolio: ctx.env.portfolioId }, parts: ["prices"], since: new Date(Date.now() - DAY) });
     const alerts = await generateAlerts(ctx);
     const p = rep.prices;
@@ -66,7 +68,7 @@ export function cronRoutes(ctx: ApiCtx) {
   });
 
   /** Filing poll (external pinger every 20–30 min): last 2 days through the triage pipeline. */
-  r.post("/cron/filings", async (c) => {
+  r.on(["GET", "POST"], "/cron/filings", async (c) => {
     const rep = await refresh(ctx.deps, { target: { portfolio: ctx.env.portfolioId }, parts: ["filings"], since: new Date(Date.now() - 2 * DAY) });
     const f = rep.filings;
     return ok(c, {

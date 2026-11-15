@@ -1,6 +1,17 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "hono",
+  "framework": null,
+  "installCommand": "pnpm install --frozen-lockfile",
+  "buildCommand": "pnpm build",
+  "outputDirectory": "public",
   "regions": ["bom1"],
-  "fluid": true
+  "fluid": true,
+  "functions": {
+    "api/index.js": { "maxDuration": 300, "includeFiles": "dist/**" }
+  },
+  "rewrites": [{ "source": "/(.*)", "destination": "/api" }],
+  "crons": [
+    { "path": "/v1/cron/daily", "schedule": "30 13 * * 1-5" },
+    { "path": "/v1/cron/filings", "schedule": "0 15 * * *" }
+  ]
 }

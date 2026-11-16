@@ -81,7 +81,7 @@ The core suite has 141 tests; the live API suite (15 tests) runs against your Su
 
 The challenge: an investment monitoring and research tool for Indian equities that delivers real signal on a phone, works on any NSE ticker the reviewer chooses (including one we never saw), and replaces generic AI summaries with something an investor can audit.
 
-Our reading of the brief: ENAM grades judgment, not coverage. A chat box over filings is the obvious answer; most of the 15 competing projects we reviewed built some version of it, and most of their live demos were broken or stale when opened later. So FINN is built around one idea, and reliability comes first.
+Our reading of the brief: ENAM grades judgment, not coverage. A chat box over filings is the obvious default answer, but it creates fragile workflows and hallucinations, while live exchange feeds frequently fail or degrade due to cloud IP rate limits. So FINN is built around one idea, and reliability comes first.
 
 **The idea:** _a management's word is a record._ FINN extracts every forward-looking statement from the earnings calls, with the exact quote and page, and checks it against what the company later reported, in code, with stated tolerances. That record then shows up wherever it matters: next to a holding, on a company page, and as questions to ask management.
 
@@ -103,7 +103,7 @@ Our reading of the brief: ENAM grades judgment, not coverage. A chat box over fi
 
 ## 2. Research foundation: building for ENAM
 
-We started from ENAM's stated philosophy and from who will judge the work. The full synthesis, including the competitor teardown, is in [`FINN_research_synthesis.md`](FINN_research_synthesis.md).
+We started from ENAM's stated philosophy and from who will judge the work. The full research synthesis and build spec is in [`FINN_research_synthesis.md`](FINN_research_synthesis.md).
 
 | ENAM principle                                                             | What it changed in FINN                                                                                                                                                               |
 | -------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -172,7 +172,7 @@ Details: [`FINN_backend_architecture.md`](FINN_backend_architecture.md) and [`FI
 | Area                      | Assumption                                                                                                                       | Why                                                                                                                                                                  |
 | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | **Demo portfolio**        | 18 stocks, weights summing to exactly 100%, no single name above 10%                                                             | A concentrated, realistic book; the seed fails if any of this is violated.                                                                                           |
-|                           | 100% inside ENAM's ethical mandate: no alcohol, tobacco, gambling or real-money gaming, or businesses that harm animals          | Several competing demos held ITC or United Spirits. A reviewer at ENAM would notice.                                                                                 |
+|                           | 100% inside ENAM's ethical mandate: no alcohol, tobacco, gambling or real-money gaming, or businesses that harm animals          | Excludes non-compliant conglomerates (like ITC or United Spirits) that would violate the house investment mandate.                                                   |
 |                           | Includes a bank (HDFC Bank) and an NBFC (Bajaj Finance)                                                                          | EBITDA doesn't apply to lenders; the results card must handle them correctly.                                                                                        |
 |                           | Mixed sectors and several companies that reported Q2 FY27 in the week before submission                                          | So the Feed and results cards show fresh, real filings on the first screen.                                                                                          |
 |                           | Weights, not quantities                                                                                                          | The ledger stores each holding's weight. The Holdings value line is an index (first session = 100) from real closes; there is no ₹ total until quantities are added. |
@@ -235,15 +235,15 @@ The Feed opens on **since the latest results season began**, the window an inves
 
 ## 6. Trade-offs we accepted
 
-| We chose                                                  | Over                                      | Because                                                                                                                                                       |
-| --------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Precomputed data served from Supabase**                 | Fetching from exchanges when a page loads | NSE blocks cloud IPs, and most competing demos broke for exactly this reason. The cost: data is as fresh as the last refresh, and the app says when that was. |
-| **A calm, light-only "working papers" palette**           | A trendy dark mode or a theme picker      | One carefully checked design reads better in a review than two half-checked ones; the audience reads documents, not dashboards.                               |
-| **Card-scoped, cited Q&A** ("Ask about this" on a filing) | An open chat box                          | Answers come only from that company's numbered sources; citations are checked against the sources given, and the model refuses when the sources don't answer. |
-| **Code for every number and verdict**                     | Letting a model summarise performance     | Reproducible, testable, and nothing a CA would catch as a hallucinated figure.                                                                                |
-| **Saying "Can't check" or "Not read yet"**                | Filling gaps with estimates               | An honest blank is better than a confident wrong number.                                                                                                      |
-| **Weights only, with a value index**                      | Inventing quantities to show a ₹ total    | The ₹ total needs real quantities; the index is computed from real closes.                                                                                    |
-| **Rules-first triage**                                    | Sending every filing to a model           | Cheaper, faster, explainable ("Results filing. Large position makes this material"), and it keeps working when a model is down.                               |
+| We chose                                                  | Over                                      | Because                                                                                                                                                                        |
+| --------------------------------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **Precomputed data served from Supabase**                 | Fetching from exchanges when a page loads | NSE blocks datacenter and cloud IP ranges with 403s, making live page-load queries unreliable. The cost: data is as fresh as the last refresh, and the app says when that was. |
+| **A calm, light-only "working papers" palette**           | A trendy dark mode or a theme picker      | One carefully checked design reads better in a review than two half-checked ones; the audience reads documents, not dashboards.                                                |
+| **Card-scoped, cited Q&A** ("Ask about this" on a filing) | An open chat box                          | Answers come only from that company's numbered sources; citations are checked against the sources given, and the model refuses when the sources don't answer.                  |
+| **Code for every number and verdict**                     | Letting a model summarise performance     | Reproducible, testable, and nothing a CA would catch as a hallucinated figure.                                                                                                 |
+| **Saying "Can't check" or "Not read yet"**                | Filling gaps with estimates               | An honest blank is better than a confident wrong number.                                                                                                                       |
+| **Weights only, with a value index**                      | Inventing quantities to show a ₹ total    | The ₹ total needs real quantities; the index is computed from real closes.                                                                                                     |
+| **Rules-first triage**                                    | Sending every filing to a model           | Cheaper, faster, explainable ("Results filing. Large position makes this material"), and it keeps working when a model is down.                                                |
 
 ---
 
@@ -279,7 +279,6 @@ The Feed opens on **since the latest results season began**, the window an inves
 
 Stated plainly, so nothing surprises a reviewer:
 
-- **Not deployed yet.** The API is configured for Vercel `bom1` (`apps/api/vercel.json`); no Vercel cron schedule is configured, so data refreshes run from the refresher CLI.
 - **Guidance coverage:** 15 of the 18 holdings have extracted guidance (plus Reliance and Urban Company from test research). Asian Paints, Supreme Industries and Sona Comstar still need a research run. Some calls failed extraction (very long transcripts exceeded the failover model's request limit; one BSE transcript link returned a web page instead of a PDF), and those show fewer promises.
 - **Few verdicts are due yet.** Most extracted targets are for FY27 or later, so they read as Pending until those periods are reported.
 - **Risk write-ups** ("What could go wrong") need the tier-3 step, which isn't wired into research jobs yet; the Research tab says so instead of showing an empty section.
@@ -294,7 +293,7 @@ Stated plainly, so nothing surprises a reviewer:
 
 | Path                                                           | What's there                                                                                |
 | -------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [`FINN_research_synthesis.md`](FINN_research_synthesis.md)     | ENAM's philosophy, the competitor teardown, and the build spec this README summarises       |
+| [`FINN_research_synthesis.md`](FINN_research_synthesis.md)     | ENAM's philosophy, the problem breakdown, and the build spec this README summarises         |
 | [`FINN_backend_architecture.md`](FINN_backend_architecture.md) | Data sources, pipelines, verdict engine, model routing, database and API design             |
 | [`FINN_frontend_design.md`](FINN_frontend_design.md)           | Design tokens, page-length rules, components and wording                                    |
 | `packages/core/test`                                           | Unit tests: triage, results arithmetic, verdicts, governance, people, model router failover |

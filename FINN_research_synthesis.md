@@ -117,131 +117,10 @@ Inputs:
 | No buy/sell/hold, targets, "upside of X%", "Street expects" | — | Independence; the brief bans broker views |
 | Absolute dates ("as of 15 Nov, 18:30 IST") | "2h ago" on old data | Trust |
 
----
-
-## 3. Competitor teardown (16 repos, 15 projects)
-
-### 3.1 Context
-- **At least two rounds of students got this brief.** Late-October commits and a 1 Nov deadline in one repo show an earlier round. **geekyparas21** (built 10–11 Nov) and **codehub19** (subject line "IIT Delhi – AI Engineer - 2027") are in our round.
-- **12 of 15 projects have promised vs delivered.** "Promise Ledger" is used 3 times, "Promise Tracker" twice, "Quietly dropped" by geekyparas.
-- **Everyone uses the same layout:** a bottom bar with Brief / Alerts / Research / Ask, with chat bolted on.
-- **Demo reliability on 12 Nov:** 3 of 9 live demos showed fresh real filings (Kshitiz, Vikash, sssinghm).
-
-### 3.2 Scorecard: what each bet on, what we saw on 12 Nov
-
-| Repo | Main idea | Live demo (12 Nov) | Best decision | Worst decision |
-|---|---|---|---|---|
-| geekyparas21 (our round) | Filter hard, then a Promise Tracker | Default 24h **empty**, data from 10 Nov (fixed by 13 Nov with manual refresh) | Rules sort 87% of filings; 70-filing classifier test (81.4%); data copy shipped with frontend | Score numbers and token cost on the home screen (cost removed 13 Nov); vague "meaningful growth" scored as Delivered |
-| DhruvShetty22 | Thesis per holding; filings test it ("Theses intact 8/17") | Brief **empty for 7 days** (fetch job died); thesis page overflowed at 375px | Portfolio weight in ranking; event grouping; auto-widening window; ₹ cost; 13/18 results checked against Screener | Push depends on a job nobody watched |
-| CinnamonRoll10 | Magazine-style "What changed."; Ask FINN from a card | **Empty**: NSE did not respond for all 20 | Card-scoped "Ask FINN" | Live NSE calls at page load; AI history of 5 prompts ("pls complete it") |
-| Harsh-maheshwari18 | Signal Inbox, no AI at runtime | Frozen at 27 Oct | XBRL results; marks human-reviewed AI output | Raw subjects; visible score maths; subsidiary (90) ranked above HDFC Bank CEO change (75); ledger 0 met/missed out of 17 |
-| ARYAMANN7279 | "A briefing that talks back"; static site | Frozen at 27 Oct, card says "2h ago" | Browser-side ranking, instant sliders; quotes checked against cited page | Relative times on old data; prompt history rebuilt afterwards |
-| Kshitiztyagi23 | Source-first "filing desk" with event grouping | **Fresh** | Product-direction note comparing Quartr, Koyfin, Trendlyne; hand-entered Dixon numbers disclosed | Lead story a HAL rating *withdrawal* with a vague headline; filler text |
-| VikashSunda | Primary evidence plus your judgment | Fresh | Daily refresh; clear live/cached/stale/unavailable states | Results card with **no numbers** ("CATEGORY CUE"); greets the builder; number tiles; 25 md docs |
-| Yash04dsr | Chat first; multi-agent; Expo app; real push | No live link | Only real phone push; cite-or-refuse tests | Chat as the main surface; install required; redesigned 3 times in a day |
-| ayanshS007 | Strict grounding rules | No UI, no deploy | Best rules: code owns numbers, quote matching, grader, abstain | Web app is the Next.js starter |
-| Manyruumpus | Evidence-first research jobs | Not deployed | Honest about failures | 2 commits (hidden history); Arial default; no verdicts |
-| sssinghm | "Your market, filtered." terminal look | Live NSE works | It runs | Routine filings as the only signals; "02"/"00" tiles; 4-company research |
-| codehub19 (our round) | A full investing app | `[add deployed URL]` (still on 15 Nov) | Web push | Logins, CSV import, macro news, sector rankings; theme churn on deadline eve |
-| Aayush-Jhawar | AI does everything | Seed data stamped with today's date (TCS "Q2FY25", 2024 Zomato deal, invented bio) | — | LLM classifies every filing and computes QoQ/YoY; retired models; ENAM PDFs committed |
-| sitendernarwal ×2 | Static mockup plus a "Network" of fake people | All sample data | — | No backend; invented data; "reconstructed" AI history |
-| alien0325 | — | Empty repo | — | — |
-
-### 3.3 Each repo against the brief
-
-**Brief checklist codes:**
-- **D**: digest with a time window you can pick
-- **A**: configurable alerts
-- **N**: actual phone notification
-- **R**: results card (Revenue, EBITDA, PBT, PAT, QoQ and YoY)
-- **M**: bio on management changes
-- **P**: research on a ticker you didn't pick, in the deployed app
-- **G**: promised vs delivered
-- **L**: live link that works on a phone
-- **C**: cost discipline
-- **H**: genuine AI build history
-
-| Repo | Best part | Absolutely avoid | Has | Missing | Worth borrowing |
-|---|---|---|---|---|---|
-| [geekyparas21](https://github.com/geekyparas21/ENAM_AI_Engineer_Assignment) | Verdicts with quote and page ("Moved the goalposts"); measured classifier | Vague promises scored as Delivered; first half judged against full-year targets | D A R M P G L C H | N | A credibility line per company ("kept 50% of promises due") on the card when new guidance lands |
-| [DhruvShetty22](https://github.com/DhruvShetty22/finn) | Thesis per holding from management's quotes | A feed depending on an unwatched cloud job | D A R M P G C H | L, N | Auto-widening window; position weight in the reason |
-| [CinnamonRoll10](https://github.com/CinnamonRoll10/finn) | Card-scoped "Ask FINN" | Live NSE calls at page load from the cloud | D A R M P G C | L, H, N | "Ask about this" on every card |
-| [Kshitiztyagi23](https://github.com/Kshitiztyagi23/finn-enam) | Filings grouped into one "development"; fresh data | Vague template headlines | D A R M P G L C | Custom window, N | One card per development |
-| [Harsh-maheshwari18](https://github.com/Harsh-maheshwari18/finn-enam-ai-agent) | XBRL results; human-review marks | Raw subjects; visible score maths; misranking | D A R G C | M, P, L, N | The XBRL route (study it, write our own) |
-| [ARYAMANN7279](https://github.com/ARYAMANN7279/finn-investor-briefing) | "1 needs you"; instant sliders | "2h ago" on old data | D A R M G L C | P, N, H | Sliders that re-rank live |
-| [Yash04dsr](https://github.com/Yash04dsr/finn) | Real phone push; cite-or-refuse tests | Chat-first; install required | D A N R M P G C H | L | Real push, via Telegram |
-| [VikashSunda](https://github.com/VikashSunda/finn-enam) | Clear data-state labels; daily refresh | Results card with no numbers | D A P L | R, G, M, N | — |
-| [ayanshS007](https://github.com/ayanshS007/finn) | Strictest grounding rules | Strong engine, no UI | R G C H (backend) | D/A UI, M, L, N | Quote check before showing a quote |
-| [Manyruumpus](https://github.com/Manyruumpus/finn-enam) | Honest about failures | Squashed history, no deploy | D A P | R, G, M, L, N, H | — |
-| [sssinghm](https://github.com/sssinghm/FINN-Investment-Agent) | Live NSE from Render | Routine items as the only signals; vanity tiles | D P L | R, M, G, N | — |
-| [codehub19](https://github.com/codehub19/finn-enam) | Web push | Too much scope; no link | D A N R P G | L, M | — |
-| [Aayush-Jhawar](https://github.com/Aayush-Jhawar/Enam) | — | Fake data dated today; invented bios; model does the maths | Everything on paper only | Real data, real history | — |
-| sitendernarwal ([1](https://github.com/sitendernarwal/enam-finn-ai-engineer), [2](https://github.com/sitendernarwal/enam-finn-founding-ai-engineer)) | — | Simulated data; reconstructed history | Nothing real | Everything | — |
-| [alien0325](https://github.com/alien0325/FINN) | — | Not submitting something that runs | — | Everything | — |
-
-**Changes found on 15 Nov:**
-- geekyparas fixed staleness, but confirmed **NSE returns 403 to GitHub's servers**, so it now refreshes by hand from home.
-- Kshitiz fixed NSE redirects in its refresh job.
-- codehub19 changed themes ten times but still has no deployed link.
-- sitendernarwal added a "simulated market chart" and a reconstructed AI history.
-
-### 3.4 Product decisions compared
-- **The bet:** the good ones made one (Dhruv: is my conviction still justified; geekyparas: attention is scarce; Kshitiz: notice → understand → verify → remember). The weak ones are feature lists.
-- **First screen:** the best headline is a count plus a judgment ("15 of 65 filings are worth your time", "1 needs you", "Theses intact 8/17"). The worst is number tiles, greetings or a ticker strip.
-- **Ranking:** almost all use category plus tweaks. Only Dhruv uses position weight. **Nobody** judges moves against the stock's own volatility.
-- **Results:** XBRL (Harsh, ayansh), PDF plus a Screener cross-check (geekyparas, Dhruv), Screener only (ARYAMANN, Yash). The good ones state the EBITDA formula and flag mismatches.
-- **Verdicts:** Harsh is too timid (0 scored). geekyparas is too generous. Dhruv is the most careful (segment targets never scored against company numbers; "too early" when it is).
-- **Push:** only 2 of 15 send anything to the phone.
-- **Demo approach:** live-at-load died; frozen looks stale; a scheduled job died quietly (Dhruv) or worked (Kshitiz, Vikash); a shipped copy survives but goes stale. Use a watched refresh, a shipped fallback and a self-widening window.
-
-### 3.5 Design, fonts, wording
-- The polished style (warm dark, serif display, sans body: Newsreader + Geist, Fraunces + mono) is becoming the template.
-- AI-template looks: purple accents, glassmorphism, neon terminal, navy-and-orange "Bloomberg", Arial/system defaults.
-- Few line up digits in tables (`tabular-nums`). Colour is used on small moves (red on −3.5%).
-- Bad wording: internal labels (MANAGEMENT_CHANGE, "CATEGORY CUE", "Source health", "novelty +10", a bare "113"); raw Reg 30 subject lines; AI filler; small trust bugs ("Wednesday" on a Thursday, "2h ago" on 16-day-old data).
-- Good wording: "1 of 2 promises that could be scored were kept as stated"; "Swipe → keep · ← done"; "Read from p.10 of the results filing. EBITDA = PBT before exceptionals + finance costs + D&A − other income."
-
-### 3.6 Why they all read as student-built
-
-| Problem | Example | Production fix |
-|---|---|---|
-| Talks about the system, not the company | "Verdict re-checked in code…", "Model cost of this data: $0.7845" | A small source chip; method in a "How FINN decides" sheet |
-| Everything equally loud | A 6×3 table, method note, warning, buttons and score on every card | One actionable line; tap for detail |
-| Template sentences | "Q2 FY27: PAT up 113.7% YoY, ahead of revenue at +10.1%; EBITDA margin expanded 7.7pp…" | Answer the obvious next question ("profit doubled on 10% sales: why?") or flag it |
-| Wrong building block | Lists of filings | Companies and positions, with filings folded under them |
-| Settings shown as features | 24h / 3 days / 7 days / 30 days / Custom pills | Open on "since you last looked" |
-| Dead-end empty states | "Nothing needs you right now." | "Quiet since Tue. Next: Dixon results Fri 14 Nov." |
-| Precision theatre | "+0.0%", "$0.7845", "13.2x vol" | Round to what matters |
-| Same parts everywhere | Tab bar, chips, badge clutter, tiles | Ask what each screen is for |
-
-**Rewrites of their actual cards:**
-
-| They wrote | Production version |
-|---|---|
-| "Q2 FY27: PAT up 113.7% YoY, ahead of revenue at +10.1%; EBITDA margin expanded 7.7pp to 17.7%." | "Titan profit doubled on 10% sales growth. Margin jump needs checking: the filing and Screener disagree on EBITDA." |
-| "Disclosure under Regulation 30… Change in Managing Director and Chief Executive Officer of the Bank" | "HDFC Bank has a new CEO. [Name], ex-[firm], takes over [date]." |
-| "Hindustan Aeronautics receives a credit-rating update" | Folded (a withdrawal on a debt-free company is routine) |
-| "Infosys… informed the Exchange regarding 'Six Promising Researchers Win the Infosys Prize'" | Folded |
-| "CATEGORY CUE: Check reported performance…" | The numbers themselves |
-| "1 of 2 promises that could be scored were kept as stated." | "KPIT missed its margin target last year and is behind again. Management says H2 recovers; third call saying it." |
-| "Nothing needs you right now." | "Quiet since Tue. Next up: Dixon results Fri 14 Nov." |
-| "Good afternoon, Vikash" | Removed |
-
-### 3.7 Mistakes almost everyone makes
-1. The demo is dead on arrival: empty 24h, stale data, a live fetch failing.
-2. The same tab layout, with chat bolted on.
-3. Engineer-facing info on the investor's screen.
-4. Raw filing text instead of a rewritten headline.
-5. The ledger as a separate tab instead of in the flow.
-6. Document theatre (19–25 md files).
-7. Weak AI histories ("pls complete it", rewritten transcripts, squashed commits).
-
-### 3.8 Good moves few people make
-Event grouping; a measured classifier test; results checked against a second source; an empty window that widens itself; ranking by portfolio weight; real push; labelling hand-curated or human-reviewed output; Seen/Star/Mute feedback; a README with "try in two minutes" plus a QR code.
 
 ---
 
-## 4. YC-backed companies doing something similar
+## 3. YC-backed companies doing something similar
 
 None covers Indian NSE/BSE filings. Only Astor (retail) is mobile-first.
 
@@ -266,13 +145,12 @@ Left out as not close enough: Trata (anonymous analysts' views, the opposite of 
 
 ---
 
-## 5. Final build spec (synthesis of everything above)
+## 4. Final build spec (synthesis of everything above)
 
-### 5.1 Reference key
+### 4.1 Reference key
 - **[B]** ENAM brief · **[RD]** ENAM reference document (categories and glossary)
 - **[E-Phil]** ENAM investment philosophy · **[E-Cult]** ENAM culture and ethics · **[E-Team]** ENAM team backgrounds
 - **[Plan]** our problem breakdown
-- **[Repo: name]** competitor repo · **[Mistake: name]** what to avoid from that repo
 - **[YC: name]** YC-backed company
 
 **Priority:**
@@ -283,7 +161,7 @@ Left out as not close enough: Trata (anonymous analysts' views, the opposite of 
 
 **Effort:** S < 2h · M 2–5h · L > 5h
 
-### 5.2 Push (the app reaches out)
+### 4.2 Push (the app reaches out)
 
 | ID | Feature | What it does | Why (references) | Priority | Language / UI notes | Effort |
 |---|---|---|---|---|---|---|
@@ -306,7 +184,7 @@ Left out as not close enough: Trata (anonymous analysts' views, the opposite of 
 | P-17 | Learn from feedback | Seen / Mute this kind; FINN says what it changed | [Repo: geekyparas] Seen/Star/Mute; [YC: KelAI] | P2 | "Muted: investor meet notices" | S |
 | P-18 | Mandate-breach alert | An acquisition or new segment in an excluded activity goes to Act | [E-Cult] ethics; [YC: Kimpton] breaches | P2 | "Outside your mandate: …" | S |
 
-### 5.3 Pull (research on demand)
+### 4.3 Pull (research on demand)
 
 | ID | Feature | What it does | Why (references) | Priority | Language / UI notes | Effort |
 |---|---|---|---|---|---|---|
@@ -325,7 +203,7 @@ Left out as not close enough: Trata (anonymous analysts' views, the opposite of 
 | PL-13 | Capital allocation trail | Past big decisions vs what happened since | [E-Phil] capital allocation | P2 (1–2 companies if time) | — | L |
 | PL-14 | "Ask about this" | A question pre-filled from a card, answered only from that company's documents with citations; refuses otherwise | [Repo: Cinnamon]; [Repo: Yash] cite-or-refuse; [B] try more than chat | P1 | Scoped, never the home screen | M |
 
-### 5.4 Interaction model and UI
+### 4.4 Interaction model and UI
 
 | ID | Decision | Why (references) | Priority | Notes |
 |---|---|---|---|---|
@@ -340,7 +218,7 @@ Left out as not close enough: Trata (anonymous analysts' views, the opposite of 
 | U-9 | Two-minute setup: paste holdings | [YC: Cohesion] | P2 | — |
 | U-10 | No number tiles, greetings, ticker strips, index tickers, macro panels or gamification | [E-Phil]; [Mistake: Vikash, sssinghm, ARYAMANN] | P0 | — |
 
-### 5.5 Language rules (apply everywhere)
+### 4.5 Language rules (apply everywhere)
 
 | ID | Rule | Why (references) | Priority |
 |---|---|---|---|
@@ -354,7 +232,7 @@ Left out as not close enough: Trata (anonymous analysts' views, the opposite of 
 | L-8 | Round to what matters (growth %, margin in bps); no "+0.0%" | [Mistake: geekyparas] precision theatre | P0 |
 | L-9 | Name the hero "Management record", not "Promise Ledger/Tracker" | 5 repos use those names; plain investor language | P0 |
 
-### 5.6 Data and reliability
+### 4.6 Data and reliability
 
 | ID | Decision | Why (references) | Priority |
 |---|---|---|---|
@@ -366,7 +244,7 @@ Left out as not close enough: Trata (anonymous analysts' views, the opposite of 
 | D-6 | Bank variant for results (no EBITDA; show "not applicable" or NII-based lines) | [Plan]; [Repo: Dhruv] BANKBARODA | P1 |
 | D-7 | Demo set: several Q2 reporters this week, one recent management change, one pledge case, one volatile small cap, one bank, mixed sectors | [Plan] section 10 | P0 |
 
-### 5.7 Architecture, cost, evaluation
+### 4.7 Architecture, cost, evaluation
 
 | ID | Decision | Why (references) | Priority |
 |---|---|---|---|
@@ -377,7 +255,7 @@ Left out as not close enough: Trata (anonymous analysts' views, the opposite of 
 | E-1 | Triage eval on ~60 labelled filings: report **material recall** ("missed 0 of N material") and precision | [Plan]; [Repo: geekyparas] accuracy only; under-triage costs more | P1 |
 | E-2 | Results accuracy vs Screener on N companies | [Repo: Dhruv] 13/18 | P1 |
 
-### 5.8 Submission
+### 4.8 Submission
 
 | ID | Item | Why (references) | Priority |
 |---|---|---|---|
@@ -389,7 +267,7 @@ Left out as not close enough: Trata (anonymous analysts' views, the opposite of 
 
 ---
 
-## 6. Deliberately left out (for the writeup)
+## 5. Deliberately left out (for the writeup)
 
 | Left out | Reason |
 |---|---|
@@ -404,7 +282,7 @@ Left out as not close enough: Trata (anonymous analysts' views, the opposite of 
 
 ---
 
-## 7. Ship order for today (P0 first)
+## 6. Ship order for today (P0 first)
 1. D-5 clean portfolio → D-1/D-3 precomputed data and fallback → D-2 refresh from the laptop.
 2. P-2, P-3, P-4, P-5 triage with reasons → P-1 brief home.
 3. P-6 results card (XBRL → Screener check) → P-12 volatility-relative alerts.
@@ -416,28 +294,12 @@ Left out as not close enough: Trata (anonymous analysts' views, the opposite of 
 
 ---
 
-## 8. Sources
+## 7. Sources
 
 **ENAM**
 - ENAM AI Engineer Build Challenge brief and reference document (shared PDFs)
 - ENAM website text: culture, investment philosophy, team (as pasted)
 
-**Competitor repos and live demos (checked 12 Nov; commits re-checked 15 Nov)**
-- geekyparas21: https://github.com/geekyparas21/ENAM_AI_Engineer_Assignment · https://enam-ai-engineer-assignment.vercel.app/
-- DhruvShetty22: https://github.com/DhruvShetty22/finn · https://finn-alpha-sepia.vercel.app
-- CinnamonRoll10: https://github.com/CinnamonRoll10/finn · https://finn-10sm.onrender.com
-- Harsh-maheshwari18: https://github.com/Harsh-maheshwari18/finn-enam-ai-agent · https://finn-web-q1bw.onrender.com/
-- Kshitiztyagi23: https://github.com/Kshitiztyagi23/finn-enam · https://finn-enam-2343.onrender.com/
-- VikashSunda: https://github.com/VikashSunda/finn-enam · https://finn-enam-yid1.onrender.com
-- Aayush-Jhawar: https://github.com/Aayush-Jhawar/Enam · https://finn-enam-1tdf.onrender.com/
-- sssinghm: https://github.com/sssinghm/FINN-Investment-Agent · https://finn-investment-agent-ssjv.onrender.com
-- ARYAMANN7279: https://github.com/ARYAMANN7279/finn-investor-briefing · https://aryamann7279.github.io/finn-investor-briefing/
-- sitendernarwal: https://github.com/sitendernarwal/enam-finn-ai-engineer · https://github.com/sitendernarwal/enam-finn-founding-ai-engineer · https://sitendernarwal.github.io/enam-finn-founding-ai-engineer/
-- Yash04dsr: https://github.com/Yash04dsr/finn
-- ayanshS007: https://github.com/ayanshS007/finn
-- Manyruumpus: https://github.com/Manyruumpus/finn-enam
-- codehub19: https://github.com/codehub19/finn-enam
-- alien0325: https://github.com/alien0325/FINN
 
 **YC-backed companies**
 - Hudson Labs: https://www.ycombinator.com/companies/hudson-labs · https://hudson-labs.com/products · https://hudson-labs.com/llms.txt
